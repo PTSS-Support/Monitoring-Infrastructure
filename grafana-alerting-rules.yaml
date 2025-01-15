@@ -1,0 +1,109 @@
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaAlertRuleGroup
+metadata:
+  name: resource-metrics
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana-a"
+  interval: 5m
+  orgId: 1
+  folderRef: "microservices-alerts"
+  rules:
+    - uid: eea3je1yy1iwwc
+      title: "High CPU Usage Alert"
+      condition: A
+      data:
+        - refId: A
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: a7e5781a-a4ba-4fd0-85a5-a7dc58931929
+          model:
+            editorMode: code
+            expr: 'system_cpu_usage{app="ptss-support-quarkus-base-repo"} * 100 > 80'
+            instant: true
+            intervalMs: 60000
+            legendFormat: __auto
+            maxDataPoints: 43200
+            range: false
+            refId: A
+      noDataState: NoData
+      execErrState: Error
+      for: 5m
+      annotations:
+        description: "CPU usage has exceeded 80% for more than 5 minutes"
+        summary: "High CPU Usage Detected"
+      labels:
+        service: ptss-support-quarkus-base-repo
+        severity: warning
+      isPaused: false
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaAlertRuleGroup
+metadata:
+  name: service-health
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"  # Adjust this to match your Grafana labels
+  interval: 1m
+  orgId: 1
+  folderRef: "microservices-alerts"
+  rules:
+    - uid: dea3kkuvdmc5ca
+      title: "Service Down Alert"
+      condition: A
+      data:
+        - refId: A
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: a7e5781a-a4ba-4fd0-85a5-a7dc58931929
+          model:
+            editorMode: code
+            expr: 'sum(up{app="ptss-support-quarkus-base-repo"}) < 1'
+            instant: true
+            intervalMs: 60000
+            legendFormat: __auto
+            maxDataPoints: 43200
+            range: false
+            refId: A
+      noDataState: NoData
+      execErrState: Error
+      for: 1m
+      annotations:
+        description: "The application has been unavailable for more than 1 minute"
+        summary: "Service is Down"
+      labels:
+        service: ptss-support-quarkus-base-repo
+        severity: critical
+      isPaused: false
+    - uid: fea3l8mq2om4ga
+      title: "High Error Rate Alert"
+      condition: A
+      data:
+        - refId: A
+          relativeTimeRange:
+            from: 600
+            to: 0
+          datasourceUid: a7e5781a-a4ba-4fd0-85a5-a7dc58931929
+          model:
+            editorMode: code
+            expr: 'sum(rate(http_server_requests_seconds_count{app="ptss-support-quarkus-base-repo", status=~"5.."}[5m])) / sum(rate(http_server_requests_seconds_count{app="ptss-support-quarkus-base-repo"}[5m])) * 100 > 45'
+            instant: true
+            intervalMs: 1000
+            legendFormat: __auto
+            maxDataPoints: 43200
+            range: false
+            refId: A
+      noDataState: NoData
+      execErrState: Error
+      for: 3m
+      annotations:
+        description: "Error rate has exceeded 45% of requests over the last 5 minutes"
+        summary: "High HTTP Error Rate Detected"
+      labels:
+        service: ptss-support-quarkus-base-repo
+        severity: warning
+      isPaused: false

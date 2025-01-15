@@ -9,6 +9,8 @@ This repository contains the Kubernetes manifests for setting up Prometheus and 
 - **Routes**: OpenShift routes for accessing both Prometheus and Grafana
 - **RBAC**: Required permissions for Prometheus to scrape metrics
 - **ConfigMaps**: Configuration for Prometheus scraping
+- **Grafana Alert Rules**: Template for monitoring critical service metrics
+
 
 ## Detailed Component Explanations
 
@@ -98,6 +100,51 @@ Prometheus uses Kubernetes service discovery to automatically find and monitor p
     - Force HTTPS redirect through `insecureEdgeTerminationPolicy: Redirect`
 
 
+### Grafana Alerting Configuration (`grafana-folder.yaml`, `grafana-alerting-rules.yaml`)
+The alerting configuration provides a template for monitoring service health and performance:
+
+1. **Folder Structure** (`grafana-folder.yaml`):
+   - Creates a dedicated "Microservices Alerts" folder in Grafana
+   - Ensures organized alert management
+   - Links to specific Grafana instance using instanceSelector
+    ```yaml
+    instanceSelector:
+      matchLabels:
+        dashboards: "grafana-a"
+    ```
+
+2. **Alert Rule Groups** (`grafana-alerting-rules.yaml`):
+   Contains two main groups of alerts serving as templates:
+
+   a) **Resource Metrics**:
+   - Monitors CPU usage with 5-minute intervals
+   - Triggers when CPU exceeds 80% for 5 minutes
+   - Example for resource consumption monitoring
+
+   b) **Service Health**:
+   - Monitors service availability with 1-minute intervals
+   - Includes:
+      - Service availability monitoring (down detection)
+      - Error rate monitoring (>45% error rate detection)
+   - Template for basic service health checks
+
+3. **Alert Rule Structure**:
+   Each alert rule includes:
+   - Unique identifier (UID)
+   - Prometheus query expression
+   - Evaluation interval
+   - Alerting conditions
+   - Labels for severity and service identification
+   - Annotations for human-readable descriptions
+
+4. **Customization**:
+   These alert rules serve as templates and should be customized:
+   - Adjust thresholds based on your service requirements
+   - Modify service names (currently set to "ptss-support-quarkus-base-repo")
+   - Update datasourceUid to match your Prometheus data source
+   - Customize evaluation intervals based on your needs
+
+
 ## Prerequisites
 
 - OpenShift cluster access
@@ -135,6 +182,11 @@ Follow these steps to deploy the monitoring infrastructure:
    oc apply -f grafana.yaml
    oc apply -f grafana-route.yaml
    oc apply -f grafana-datasources.yaml
+   ```
+6. Create Grafana Alerting Rules:
+   ```bash
+   oc apply -f grafana-folder.yaml
+   oc apply -f grafana-alerting-rules.yaml
    ```
 
 ## Accessing the Services
