@@ -1,0 +1,17 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: hotel-grafana
+  namespace: hotel-dev
+  labels:
+    dashboards: grafana-a
+spec:
+  host: hotel-grafana-hotel-dev.apps.inholland.hcs-lab.nl
+  to:
+    kind: Service
+    name: hotel-grafana-service
+  port:
+    targetPort: 3000
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

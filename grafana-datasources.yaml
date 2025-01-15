@@ -1,0 +1,16 @@
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: quarkus-metrics
+  namespace: hotel-dev
+spec:
+  datasource:
+    access: proxy
+    editable: true
+    isDefault: true
+    name: quarkus-metrics
+    type: prometheus
+    url: 'http://prometheus:9090'
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana-a
